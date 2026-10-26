@@ -118,8 +118,11 @@ export default function Wallet() {
               <strong>{formatPrice(wallet.balanceKobo)}</strong>
               <p className="muted mono">Account {wallet.accountNumber}</p>
               <p className="pay-note">
-                {wallet.status === "active" ? "Ready to spend." : "This wallet is frozen."}
+                {wallet.status === "active" ? "Ready to spend or send." : "This wallet is frozen."}
               </p>
+              <Link className="button" to="/wallet/transfer">
+                Send money
+              </Link>
             </article>
 
             <form className="glass topup-card" onSubmit={submitCustom}>

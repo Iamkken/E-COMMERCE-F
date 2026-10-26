@@ -42,7 +42,7 @@ const transactionHistorySchema = new Schema(
     },
     purpose: {
       type: String,
-      enum: ["topup", "purchase"],
+      enum: ["topup", "purchase", "transfer"],
       required: true,
     },
     amountKobo: {

@@ -1751,6 +1751,22 @@ main {
   letter-spacing: -0.04em;
 }
 
+.transfer-card {
+  max-width: 560px;
+}
+
+.transfer-balance {
+  font-family: var(--display);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+
+.recipient-line {
+  margin: 0;
+  color: var(--cyan);
+}
+
 .topup-card h2,
 .tx-card h2 {
   font-family: var(--display);

@@ -1,4 +1,5 @@
 const asyncHandler = require("../helpers/asyncHandler");
+const AppError = require("../helpers/appError");
 const { loadCart, formatCart } = require("./cart.controllers");
 const {
   startTopUp,
@@ -26,7 +27,11 @@ function checkoutBody(result, cart) {
 }
 
 const topUp = asyncHandler(async (req, res) => {
-  const result = await startTopUp(req.user, req.body.amountKobo);
+  const amountKobo = req.body?.amountKobo;
+  if (!Number.isInteger(amountKobo)) {
+    throw new AppError("Enter an amount between ₦100 and ₦5,000,000.", 400, "invalid_amount");
+  }
+  const result = await startTopUp(req.user, amountKobo);
   return res.status(201).json({
     authorizationUrl: result.authorizationUrl,
     reference: result.reference,

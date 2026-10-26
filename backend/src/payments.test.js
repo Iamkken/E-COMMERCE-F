@@ -5,6 +5,8 @@ const { signaturesMatch } = require("./services/paystack.client");
 const { paymentReference, orderNumber } = require("./helpers/reference");
 const { MIN_TOPUP_KOBO, MIN_PAYSTACK_KOBO, MAX_CHARGE_KOBO } = require("./helpers/money");
 const { chargeMatchesPayment } = require("./helpers/chargeAmount");
+const validate = require("./middlewares/validate");
+const { topUpSchema } = require("./validators/payment.validators");
 
 test("Paystack stamp matches only the exact body and secret", () => {
   const secret = "sk_test_example";
@@ -67,6 +69,32 @@ test("a customer-paid Paystack fee still matches the amount we asked for", () =>
     ),
     false,
   );
+});
+
+test("a top up with no body is a 400, not a crash", () => {
+  const middleware = validate(topUpSchema);
+  const req = { body: undefined };
+  const res = {
+    statusCode: 0,
+    payload: null,
+    status(code) {
+      this.statusCode = code;
+      return this;
+    },
+    json(body) {
+      this.payload = body;
+      return this;
+    },
+  };
+  let continued = false;
+  middleware(req, res, () => {
+    continued = true;
+  });
+
+  assert.equal(continued, false);
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.payload.code, "invalid_body");
+  assert.equal(res.payload.message, "Enter an amount to add.");
 });
 
 test("money limits stay whole kobo amounts", () => {

@@ -1,6 +1,6 @@
 const Wallet = require("../models/wallets.models");
 const asyncHandler = require("../helpers/asyncHandler");
-const { ensureWallet, listTransactions } = require("../services/wallet.service");
+const { ensureWallet, listTransactions, lookupAccount, transferFunds } = require("../services/wallet.service");
 const { toPublicWallet, toPublicTransaction } = require("../helpers/present");
 
 const createWallet = asyncHandler(async (req, res) => {
@@ -34,4 +34,23 @@ const getTransactions = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { createWallet, getWallet, getTransactions };
+const lookupWallet = asyncHandler(async (req, res) => {
+  const account = await lookupAccount(req.query.accountNumber);
+  return res.status(200).json(account);
+});
+
+const transfer = asyncHandler(async (req, res) => {
+  const result = await transferFunds(req.user._id, req.body);
+  return res.status(200).json({
+    replayed: result.replayed,
+    amountKobo: result.amountKobo,
+    accountNumber: result.accountNumber,
+    recipientName: result.recipientName,
+    wallet: toPublicWallet(result.wallet),
+    message: result.replayed
+      ? "This transfer was already sent."
+      : `Sent to ${result.recipientName}.`,
+  });
+});
+
+module.exports = { createWallet, getWallet, getTransactions, lookupWallet, transfer };
