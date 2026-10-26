@@ -26,6 +26,10 @@ export async function api(path, { method = "GET", body, token } = {}) {
   return data;
 }
 
+export function phoneForWallet(phone) {
+  return /^0\d{10}$/.test(String(phone || "").trim());
+}
+
 export function nairaToKobo(input) {
   const cleaned = String(input).trim();
   if (!/^\d+$/.test(cleaned)) return null;

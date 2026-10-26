@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { api, formatPrice, nairaToKobo } from "../api";
+import { Link, useNavigate } from "react-router-dom";
+import { api, formatPrice, nairaToKobo, phoneForWallet } from "../api";
 import { getToken } from "../auth";
 import { useApp } from "../store";
 
@@ -8,6 +8,7 @@ const MIN_TRANSFER_KOBO = 100;
 
 export default function Transfer() {
   const { user, toast } = useApp();
+  const navigate = useNavigate();
   const [wallet, setWallet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [accountNumber, setAccountNumber] = useState("");
@@ -23,13 +24,22 @@ export default function Transfer() {
       setLoading(false);
       return;
     }
+    if (!phoneForWallet(user.phone)) {
+      navigate("/profile?next=/wallet/transfer", { replace: true });
+      return;
+    }
     let ignore = false;
     api("/api/v1/wallets", { token: getToken() })
       .then((data) => {
         if (!ignore) setWallet(data.wallet);
       })
       .catch((error) => {
-        if (!ignore) toast(error.message, "error");
+        if (ignore) return;
+        if (error.code === "phone_required" || error.code === "invalid_phone") {
+          navigate("/profile?next=/wallet/transfer", { replace: true });
+          return;
+        }
+        toast(error.message, "error");
       })
       .finally(() => {
         if (!ignore) setLoading(false);
@@ -37,7 +47,7 @@ export default function Transfer() {
     return () => {
       ignore = true;
     };
-  }, [user, toast]);
+  }, [user, toast, navigate]);
 
   useEffect(() => {
     const digits = accountNumber.replace(/\D/g, "");
@@ -92,6 +102,14 @@ export default function Transfer() {
         <Link className="button" to="/login?next=/wallet/transfer">
           Sign in
         </Link>
+      </section>
+    );
+  }
+
+  if (!phoneForWallet(user.phone)) {
+    return (
+      <section className="panel glass page">
+        <p className="muted">Add a phone number to send money.</p>
       </section>
     );
   }

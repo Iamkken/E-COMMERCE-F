@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import PaymentCallback from "./pages/PaymentCallback";
 import Product from "./pages/Product";
+import Profile from "./pages/Profile";
 import Shop from "./pages/Shop";
 import Signup from "./pages/Signup";
 import Transfer from "./pages/Transfer";
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/wallet" element={<Wallet />} />
         <Route path="/wallet/transfer" element={<Transfer />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/payments/callback" element={<PaymentCallback />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />

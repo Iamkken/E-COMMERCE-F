@@ -2,6 +2,7 @@ const User = require("../models/user.models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const toPublicUser = require("../helpers/publicUser");
+const { isDuplicateKey } = require("../helpers/mongoError");
 const { assignOtp, clearOtp, isOtpCoolingDown, checkOtp } = require("../helpers/otp");
 const { sendOtpEmail, sendLoginAlertEmail } = require("../helpers/userEmails");
 const {
@@ -240,6 +241,12 @@ const updateMe = async (req, res) => {
     await req.user.save();
     return res.status(200).json({ message: "Profile updated", user: toPublicUser(req.user) });
   } catch (e) {
+    if (isDuplicateKey(e)) {
+      return res.status(409).json({
+        message: "This phone number is already used.",
+        code: "phone_taken",
+      });
+    }
     console.log(e);
     return res.status(500).json({ message: "Internal server error" });
   }

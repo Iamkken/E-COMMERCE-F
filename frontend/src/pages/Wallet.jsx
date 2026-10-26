@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { api, formatPrice, nairaToKobo } from "../api";
+import { Link, useNavigate } from "react-router-dom";
+import { api, formatPrice, nairaToKobo, phoneForWallet } from "../api";
 import { getToken } from "../auth";
 import { useApp } from "../store";
 
@@ -9,6 +9,7 @@ const QUICK_KOBO = [100_000, 200_000, 500_000, 1_000_000];
 
 export default function Wallet() {
   const { user, toast } = useApp();
+  const navigate = useNavigate();
   const [wallet, setWallet] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [nextCursor, setNextCursor] = useState(null);
@@ -19,6 +20,10 @@ export default function Wallet() {
   useEffect(() => {
     if (!user) {
       setLoading(false);
+      return;
+    }
+    if (!phoneForWallet(user.phone)) {
+      navigate("/profile?next=/wallet", { replace: true });
       return;
     }
     let ignore = false;
@@ -34,7 +39,12 @@ export default function Wallet() {
         setNextCursor(history.nextCursor);
       })
       .catch((error) => {
-        if (!ignore) toast(error.message, "error");
+        if (ignore) return;
+        if (error.code === "phone_required" || error.code === "invalid_phone") {
+          navigate("/profile?next=/wallet", { replace: true });
+          return;
+        }
+        toast(error.message, "error");
       })
       .finally(() => {
         if (!ignore) setLoading(false);
@@ -42,7 +52,7 @@ export default function Wallet() {
     return () => {
       ignore = true;
     };
-  }, [user, toast]);
+  }, [user, toast, navigate]);
 
   if (!user && getToken()) {
     return (
@@ -61,6 +71,14 @@ export default function Wallet() {
         <Link className="button" to="/login?next=/wallet">
           Sign in
         </Link>
+      </section>
+    );
+  }
+
+  if (!phoneForWallet(user.phone)) {
+    return (
+      <section className="panel glass page">
+        <p className="muted">Add a phone number to open your wallet.</p>
       </section>
     );
   }

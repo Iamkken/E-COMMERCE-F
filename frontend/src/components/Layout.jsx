@@ -51,6 +51,7 @@ export default function Layout({ children }) {
               Home
             </NavLink>
             <NavLink to="/shop">Catalog</NavLink>
+            {user ? <NavLink to="/profile">Profile</NavLink> : null}
             {user ? <NavLink to="/wallet" end>Wallet</NavLink> : null}
             {user ? <NavLink to="/wallet/transfer">Send</NavLink> : null}
             {user ? (
@@ -64,13 +65,13 @@ export default function Layout({ children }) {
 
           <div className="nav-actions">
             {user ? (
-              <span className="avatar" title={`${user.firstName} ${user.lastName}`}>
+              <Link to="/profile" className="avatar" title={`${user.firstName} ${user.lastName}`} aria-label="Profile">
                 {user.profilePicture?.url ? (
                   <img src={user.profilePicture.url} alt="" />
                 ) : (
                   user.firstName.slice(0, 1)
                 )}
-              </span>
+              </Link>
             ) : null}
             <Link to="/cart" className="cart-pill" aria-label={`Cart, ${cartCount} items`}>
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -107,9 +108,10 @@ export default function Layout({ children }) {
         <nav>
           <Link to="/shop">Catalog</Link>
           <Link to="/cart">Cart</Link>
+          {user ? <Link to="/profile">Profile</Link> : null}
           {user ? <Link to="/wallet">Wallet</Link> : null}
           {user ? <Link to="/wallet/transfer">Send</Link> : null}
-          <Link to={user ? "/" : "/signup"}>{user ? `Hi, ${user.firstName}` : "Create account"}</Link>
+          <Link to={user ? "/profile" : "/signup"}>{user ? `Hi, ${user.firstName}` : "Create account"}</Link>
         </nav>
         <p className="mono muted">© {new Date().getFullYear()} Aether</p>
       </footer>

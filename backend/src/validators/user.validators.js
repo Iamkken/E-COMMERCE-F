@@ -50,7 +50,9 @@ const resetPasswordSchema = Joi.object({
 const updateMeSchema = Joi.object({
   firstName: Joi.string().trim().min(1).max(50),
   lastName: Joi.string().trim().min(1).max(50),
-  phone: Joi.string().trim().max(20).allow(null, ""),
+  phone: Joi.string().trim().pattern(/^0\d{10}$/).messages({
+    "string.pattern.base": "Use an 11-digit phone number starting with 0.",
+  }),
   address: addressSchema,
 })
   .min(1)
